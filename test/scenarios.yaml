@@ -1,0 +1,7 @@
+- hello, there
+- ${ name }
+- Hello ${ name }
+- Hello \${ name }
+- ${ greetings[ { name \} ] } ${ name }
+- greeting:
+    morning: Good morning, ${ name }
