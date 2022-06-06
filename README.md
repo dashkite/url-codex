@@ -1,19 +1,25 @@
-# Polaris
+# URL Codex
 
-_Simple JSON Query-based text interpolation for JavaScript_
+_URL interpolation and destructuring_
 
 ```coffeescript
-import { expand } from "@dashkite/polaris"
+import { encode, decode } from "@dashkite/url-codex"
 
-data = name: Alice
+data = name: alice
 
-greeting = expand "Hello, ${ name }", data
+greeting = encode "https://acme.org/greeting/{name}", data
 
-assert greeting == "Hello, Alice"
+assert greeting == "https://acme.org/greeting/alice"
+
+result = decode "https://acme.org/greeting/{name}",
+  "https://acme.org/greeting/alice"
+
+assert.deepEqual result, data
+
 ```
 
-- JSON query expressions
-- Escaping using `\`
-- Recursive expanson of objects and arrays
+- Inspired by (but not compliant with) RFC 6570
+- Wildcard and optional parameters
+- Query parameters
 
 

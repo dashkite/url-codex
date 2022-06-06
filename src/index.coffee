@@ -1,84 +1,79 @@
 import * as Parse from "@dashkite/parse"
 import * as Fn from "@dashkite/joy/function"
 import * as Type from "@dashkite/joy/type"
+import * as Text from "@dashkite/joy/text"
 import { generic } from "@dashkite/joy/generic"
-import JSONQuery from "json-query"
 
-start = Parse.text "${"
-end = Parse.text "}"
-escape = Parse.text "\\"
-symbol = Parse.re /^./
-
-escaped = Parse.all [
-  Parse.skip escape
-  symbol
+protocol = Parse.pipe [
+  Parse.text "https"
+  Parse.tag "protocol"
 ]
 
-textSymbol = Parse.any [
-  escaped
-  Parse.negate start
+scheme = Parse.pipe [
+  Parse.all [ protocol, Parse.skip Parse.text ":" ]
+  Parse.merge
 ]
 
-expressionSymbol = Parse.any [
-  escaped
-  Parse.negate end
+domain = Parse.pipe [
+  Parse.list ( Parse.text "." ), Parse.re /^[A-Za-z0-9\-]+/
+  Parse.map Text.toLowerCase
+  Parse.tag "domain"
 ]
 
-text = Parse.pipe [
-  Parse.many textSymbol
-  Parse.cat
-  Parse.tag "text"
+origin = Parse.pipe [
+  Parse.all [ 
+    scheme
+    Parse.skip Parse.text "//"
+    domain 
+  ]
+  Parse.merge
+  Parse.tag "origin"
 ]
 
-expression = Parse.pipe [
-  Parse.between start, end, Parse.many expressionSymbol
-  Parse.cat
-  Parse.trim
-  Parse.tag "expression"
+component = Parse.re /^[\w\-\.\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@]+/
+
+path = Parse.pipe [
+  Parse.many Parse.pipe [
+    Parse.all [
+      Parse.text "/"
+      component
+    ]
+    Parse.second
+  ]
+  Parse.tag "path"
+]
+
+assignment = Parse.pipe [
+  Parse.all [
+    Parse.pipe [
+      Parse.re /^[\w\-]+/
+      Parse.tag "key"
+    ]
+    Parse.skip Parse.text "="
+    Parse.pipe [
+      Parse.re /^[\w\-\.\~\%\!\$\'\(\)\*\+\,\;\:\@\/\?]+/
+      Parse.tag "value"
+    ]
+  ]
+  Parse.merge
+]
+
+query = Parse.pipe [
+  Parse.skip Parse.text "?"
+  Parse.list ( Parse.skip Parse.text "&" ), assignment
+  Parse.tag "query"
 ]
 
 parse = Parse.parser Parse.pipe [
-  Parse.many Parse.any [
-    expression
-    text
+  Parse.all [
+    origin
+    path
+    Parse.optional query 
   ]
+  Parse.merge
 ]
 
-query = ( expression, data ) ->
-  ( JSONQuery expression, { data } )?.value
+console.log parse "https://acme.org/foo/bar?baz=123&buzz=456"
 
-concatenate = ( result, value ) ->
-  if result?
-    "#{result}#{value}"
-  else
-    # don't convert to string
-    # unless we are concatenating
-    value
 
-collate = ( context ) ->
-  ( result, [ key, value ]) ->
-    result[ key ] = expand value, context
-    result
-
-expand = generic 
-  name: "expand"
-  default: Fn.identity
-
-generic expand, Type.isObject, Type.isObject, ( object, context ) ->
-  Object.entries object
-    .reduce ( collate context ), {}
-
-generic expand, Type.isArray, Type.isObject, ( array, context ) ->
-  expand value, context for value in array
-
-generic expand, Type.isString, Type.isObject, ( text, context ) -> 
-  result = null
-  parse text
-  .map ( block ) ->
-    if block.text?
-      block.text
-    else
-      query block.expression, context
-  .reduce concatenate, null
-
-export { expand, parse, query }
+# export { encode, decode }

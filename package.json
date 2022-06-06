@@ -1,5 +1,5 @@
 {
-  "name": "@dashkite/polaris",
+  "name": "@dashkite/url-codex",
   "version": "0.0.0",
   "description": "Simple JSON Query-based text interpolation for JavaScript",
   "exports": {
@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dashkite/polaris.git"
+    "url": "git+https://github.com/dashkite/url-codex.git"
   },
   "bugs": {
-    "url": "https://github.com/dashkite/polaris/issues"
+    "url": "https://github.com/dashkite/url-codex/issues"
   },
-  "homepage": "https://github.com/dashkite/polaris#readme",
+  "homepage": "https://github.com/dashkite/url-codex#readme",
   "devDependencies": {
     "@dashkite/amen": "^0.1.2",
     "@dashkite/amen-console": "^0.0.1",
@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@dashkite/joy": "^0.3.16",
-    "@dashkite/parse": "file:../parse",
-    "json-query": "^2.2.2"
+    "@dashkite/parse": "file:../parse"
   }
 }

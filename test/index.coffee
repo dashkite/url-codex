@@ -2,13 +2,12 @@ import assert from "@dashkite/assert"
 import { test, success } from "@dashkite/amen"
 import print from "@dashkite/amen-console"
 
-import { expand } from "../src"
+import { encode, decode } from "../src"
 import scenarios from "./scenarios"
-import expected from "./expected"
-import data from "./data"
 
 do ->
-  print await test "@dashkite/polaris", ->
-    actual = expand scenarios, data
-    assert.deepEqual actual, expected
-    
+  print await test "@dashkite/url-codex", ->
+    # for { name, template, data, expect } in scenarios
+    #   test name, ->
+    #     assert.equal expect, encode template, data
+    #     assert.deepEqual data, decode template, expect

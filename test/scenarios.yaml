@@ -1,7 +1,4 @@
-- hello, there
-- ${ name }
-- Hello ${ name }
-- Hello \${ name }
-- ${ greetings[ { name \} ] } ${ name }
-- greeting:
-    morning: Good morning, ${ name }
+- template: https://acme.org/{foo}
+  data:
+    foo: "abc"
+  expect: https://acme.org/abc
