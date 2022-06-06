@@ -1,0 +1,8 @@
+missing variable: >-
+  Missing binding for [ ${ variable } ]
+
+expected string: >-
+  Expected string for [ ${ variable } ]
+
+expected array: >-
+  Expected array for [ ${ variable } ]
