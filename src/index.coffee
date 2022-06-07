@@ -125,22 +125,11 @@ query = Parse.pipe [
 parse = Parse.parser Parse.pipe [
   Parse.all [
     origin
-    path
+    Parse.optional path
     Parse.optional query 
   ]
   Parse.merge
 ]
-
-createEncodingContext = ( template, bindings ) ->
-  parsed: parse template
-  result: ""
-  bindings: bindings
-
-encodeText = Fn.curry Fn.rtee ( text, context ) ->
-  context.result += text
-
-encodeFrom = Fn.curry Fn.rtee ( getter, context ) ->
-  context.result += getter context
 
 assert = Fn.curry ( predicate, code, value, context ) ->
   if ! predicate value
@@ -197,6 +186,20 @@ evaluateComponents = ( components, bindings ) ->
     It.reduce Arr.cat, []
   ]
 
+createEncodingContext = ( template, bindings ) ->
+  parsed: parse template
+  result: ""
+  bindings: bindings
+
+encodeText = Fn.curry Fn.rtee ( text, context ) ->
+  context.result += text
+
+encodeFrom = Fn.curry Fn.rtee ( getter, context ) ->
+  context.result += getter context
+
+encodeWhen = Fn.curry Fn.rtee ( predicate, action, context ) ->
+  action context if predicate context
+    
 encodeDomain = encodeFrom ({ parsed, bindings }) ->
   It.join ".",
     evaluateComponents parsed.origin.domain, bindings
@@ -207,11 +210,16 @@ encodeOrigin = Fn.pipe [
   encodeDomain
 ]
 
+# TODO is there a way to keep from evaluating evaluateComponents twice?
+#      (once here and once in encodePathComponents)
+encodeHasPath = ({ parsed, bindings  }) ->
+  ( evaluateComponents parsed.path, bindings ).length > 0
+
 encodePathComponents = encodeFrom ({ parsed, bindings }) ->
   It.join "/",
     evaluateComponents parsed.path, bindings
 
-encodePath = Fn.pipe [
+encodePath = encodeWhen encodeHasPath, Fn.pipe [
   encodeText "/"
   encodePathComponents
 ]
@@ -220,7 +228,9 @@ encodeQueryComponents = encodeFrom ({ parsed, bindings }) ->
   It.join "&",
     evaluateComponents parsed.query, bindings
 
-encodeQuery = Fn.pipe [
+encodeHasQuery = ({ parsed  }) -> parsed.query?
+
+encodeQuery = encodeWhen encodeHasQuery, Fn.pipe [
   encodeText "?"
   encodeQueryComponents
 ]
@@ -233,6 +243,24 @@ encode = Fn.pipe [
   Obj.get "result"
 ]
 
+decodeComponents = ( bindings, template, source ) ->
+  for component, i in template
+    if component.expression?
+      bindings[ component.expression.variable ] = do ->
+        switch component.expression.modifier
+          when undefined, null
+            assertIsDefined source[i], component.expression
+            source[ i ]
+          when "?"
+            if source[ i ]?
+              source[ i ]
+          when "+"
+            assertIsDefined source[i], component.expression
+            source[ i..-1 ]
+          when "*"
+            if source[ i ]?
+              source[ i..-1 ]
+
 createDecodingContext = ( template, url ) ->
   parsed:
     template: parse template
@@ -241,22 +269,42 @@ createDecodingContext = ( template, url ) ->
 
 decodeOrigin = Fn.tee ( context ) ->
   { parsed, result } = context
-  for component, i in parsed.template.origin.domain
-    if component.expression?
-      result[ component.expression.variable ] = parsed.url.origin.domain[ i ]
+  decodeComponents result, 
+    parsed.template.origin.domain,
+    parsed.url.origin.domain
 
 decodePath = Fn.tee ( context ) ->
   { parsed, result } = context
-  for component, i in parsed.template.path
-    if component.expression
-      result[ component.expression.variable ] = parsed.url.path[ i ]
+  # TODO is there a possible error condition here?
+  if parsed.template.path? && parsed.url.path?
+    decodeComponents result, parsed.template.path, parsed.url.path
 
 decodeQuery = Fn.tee ( context ) ->
   { parsed, result } = context
-  for component, i in parsed.template.query
-    { key, value } = component
-    if value.expression?
-      result[ value.expression.variable ] = parsed.url.query[ i ].value
+  # TODO is there a possible error condition here?
+  if parsed.template.query? && parsed.url.query?
+    for component, i in parsed.template.query
+      { key, value } = component
+      if value.expression?
+        result[ value.expression.variable ] = do ->
+          switch value.expression.modifier
+            when undefined, null
+              entry = parsed.url.query.find ( entry ) -> entry.key == key
+              assertIsDefined entry, key
+              entry.value
+            when "?"
+              if ( entry = parsed.url.query.find ( entry ) -> entry.key == key )?
+                entry.value
+            when "+"
+              # TODO
+              entries = parsed.url.query.filter ( entry ) -> entry.key == key
+              if entries.length < 1
+                throw failure "expected at least one", { key }
+              entries.map ({ value }) -> value
+            when "*"
+              # TODO
+              entries = parsed.url.query.filter ( entry ) -> entry.key == key
+              entries.map ({ value }) -> value
 
 decode = Fn.pipe [
   createDecodingContext
@@ -266,18 +314,4 @@ decode = Fn.pipe [
   Obj.get "result"
 ]
 
-print = (value) -> console.log JSON.stringify value, null, 2
-
-# print parse "https://acme.org/foo/bar?baz=123&buzz=456"
-
-# print parse "https://{subdomain?}.acme.org/{foo*}?baz=123&{buzz}"
-
-print encode "https://{subdomain?}.acme.org/{foo*}?baz=123&{buzz}",
-  subdomain: "www"
-  foo: [ "bar", "baz" ]
-  buzz: "42"
-
-print decode "https://{subdomain?}.acme.org/{foo*}?baz=123&{buzz}",
-  "https://www.acme.org/bar/baz?baz=123&buzz=42"
-
-# export { encode, decode }
+export { encode, decode }
