@@ -2,3 +2,12 @@
   data:
     foo: "abc"
   expect: https://acme.org/abc
+
+- template: https://acme.org/{foo*}
+  data:
+    foo: [ "abc", "def" ]
+  expect: https://acme.org/abc/def
+
+- template: https://acme.org/{foo?}
+  data: {}
+  expect: https://acme.org
