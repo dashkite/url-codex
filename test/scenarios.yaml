@@ -1,13 +1,92 @@
-- template: https://acme.org/{foo}
-  data:
-    foo: "abc"
-  expect: https://acme.org/abc
+encode/decode:
+  - name: simple path
+    template: https://acme.org/{foo}
+    url: https://acme.org/abc
+    bindings:
+      foo: abc
 
-- template: https://acme.org/{foo*}
-  data:
-    foo: [ "abc", "def" ]
-  expect: https://acme.org/abc/def
+  - name: simple path with literal
+    template: https://acme.org/foo/{bar}
+    url: https://acme.org/foo/abc
+    bindings:
+      bar: abc
 
-- template: https://acme.org/{foo?}
-  data: {}
-  expect: https://acme.org
+
+  - name: optional path (?)
+    template: https://acme.org/{foo?}
+    url: https://acme.org/abc
+    bindings:
+      foo: abc
+
+  - name: optional path (?), no binding
+    template: https://acme.org/{foo?}
+    url: https://acme.org
+    bindings:
+      foo: ~
+
+  - name: wildcard path (*)
+    template: https://acme.org/{foo*}
+    url: https://acme.org/abc/def
+    bindings:
+      foo: [ abc, def ]
+
+  - name: wildcard path (*), no binding
+    template: https://acme.org/{foo*}
+    url: https://acme.org
+    bindings:
+      foo: []
+
+  - name: wildcard path (+)
+    template: https://acme.org/{foo+}
+    url: https://acme.org/abc/def
+    bindings:
+      foo: [ abc, def ]
+
+  - name: simple query
+    template: https://acme.org/foo?{bar}
+    url: https://acme.org/foo?bar=abc
+    bindings:
+      bar: abc
+
+  - name: simple path and query
+    template: https://acme.org/{foo}?{bar}
+    url: https://acme.org/abc?bar=123
+    bindings:
+      foo: abc
+      bar: "123"
+
+  - name: optional query (?)
+    template: https://acme.org/foo?{bar?}
+    url: https://acme.org/foo?bar=abc
+    bindings:
+      bar: abc
+
+  - name: optional query (?), no binding
+    template: https://acme.org/foo?{bar?}
+    url: https://acme.org/foo
+    bindings:
+      bar: ~
+
+  - name: wildcard query (*)
+    template: https://acme.org/foo?{bar*}
+    url: https://acme.org/foo?bar=abc&bar=def
+    bindings:
+      bar: [ abc, def ]
+
+match failure:
+
+  - name: simple path, missing variable
+    template: https://acme.org/foo/{bar}
+    url: https://acme.org/foo
+
+  - name: simple path, mismatched literal
+    template: https://acme.org/foo/{bar}
+    url: https://acme.org/baz
+
+  - name: wildcard path (+), missing variable
+    template: https://acme.org/{foo+}
+    url: https://acme.org
+
+  - name: simple query, mismatched literal
+    template: https://acme.org/foo?{bar}
+    url: https://acme.org/baz?bar=abc
