@@ -9,3 +9,6 @@ expected array: >-
 
 expected at least one: >-
   Expected at least one query parameter with key [ ${ key } ]
+
+mismatched literal: >-
+  Mismatched literal: expected [ ${ template } ], got [ ${ url } ]
