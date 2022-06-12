@@ -19,6 +19,7 @@ name = Parse.pipe [
 component = Parse.re /^[\w\-\.\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@]+/
 
 symbol = Parse.re /^[\w\-]+/
+value = Parse.re /^[\w\-\.\~\%\!\$\'\(\)\*\+\,\;\:\@\/\?]+/
 
 assignment = Parse.pipe [
   Parse.all [
@@ -28,7 +29,7 @@ assignment = Parse.pipe [
     ]
     Parse.skip Parse.text "="
     Parse.pipe [
-      Parse.re /^[\w\-\.\~\%\!\$\'\(\)\*\+\,\;\:\@\/\?]+/
+      value
       Parse.tag "value"
     ]
   ]
@@ -41,5 +42,6 @@ export {
   name
   component
   symbol
+  value
   assignment
 }
