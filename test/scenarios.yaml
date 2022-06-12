@@ -1,3 +1,131 @@
+url:
+  - name: origin only
+    url: https://acme.org
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+
+  - name: origin and path
+    url: https://acme.org/foo
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      path: [ foo ]
+
+  - name: origin and query
+    url: https://acme.org?foo=bar
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      query:
+        - key: foo
+          value: bar
+
+  - name: origin, path, and query
+    url: https://acme.org/foo/bar?baz=buzz
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      path: [ foo, bar ]
+      query:
+        - key: baz
+          value: buzz
+
+template:
+  - name: origin only
+    template: https://{subdomain}.acme.org
+    expect:
+      origin:
+        protocol: https
+        domain:
+          - expression:
+              variable: subdomain
+          - acme
+          - org
+
+  - name: path
+    template: https://acme.org/{foo}
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      path:
+        - expression:
+            variable: foo
+
+  - name: path with modifier
+    template: https://acme.org/{foo*}
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      path:
+        - expression:
+            modifier: "*"
+            variable: foo
+
+  - name: query
+    template: https://acme.org?{foo}
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      query:
+        - key: foo
+          value:
+            expression:
+              variable: foo
+
+  - name: query with modifier
+    template: https://acme.org?{foo*}
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      query:
+        - key: foo
+          value:
+            expression:
+              modifier: "*"
+              variable: foo
+
+  - name: path and query
+    template: https://acme.org/{foo}?{bar}
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      path:
+        - expression:
+            variable: foo
+      query:
+        - key: bar
+          value:
+            expression:
+              variable: bar
+
+  - name: path and query with modifiers
+    template: https://acme.org/{foo*}?{bar*}
+    expect:
+      origin:
+        protocol: https
+        domain: [ acme, org ]
+      path:
+        - expression:
+            modifier: "*"
+            variable: foo
+      query:
+        - key: bar
+          value:
+            expression:
+              modifier: "*"
+              variable: bar
+
+
 encode/decode:
   - name: simple path
     template: https://acme.org/{foo}

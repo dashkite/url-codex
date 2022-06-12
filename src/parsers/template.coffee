@@ -27,7 +27,7 @@ modifier = Parse.pipe [
 ]
 
 expression = Parse.pipe [
-  Parse.between ( Parse.text "{" ), ( Parse.text "}"),
+  Parse.between [ ( Parse.text "{" ), ( Parse.text "}") ],
     Parse.pipe [
       Parse.all [
         variable

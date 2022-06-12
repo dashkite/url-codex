@@ -11,17 +11,30 @@ messages.prefix = "url-codex"
 failure = ( code, context ) ->
   messages.failure code, context
 
-assert = Fn.curry ( predicate, code, value, context ) ->
-  if ! predicate value
-    throw failure code, context
+# TODO we really need to add this to Joy
+flatten = ([ head, rest... ]) ->
+  if rest.length > 0
+    if Type.isArray head
+      [ ( flatten head )..., ( flatten rest )... ]
+    else
+      [ head, ( flatten rest )... ]
+  else if Type.isArray head
+    flatten head
+  else if head?
+    [ head ]
+  else []
 
-assert.isDefined = assert Type.isDefined, "missing variable"
-assert.isString = assert Type.isString, "expecting string"
-assert.isArray = assert Type.isArray, "expecting array"
-
+hasNoModifier = ({ modifier }) -> !modifier?
+hasOptionalModifier = ({ modifier }) -> modifier == "?" 
+hasWildcardModifier = ({ modifier }) -> modifier == "*"
+hasPlusModifier = ({ modifier }) -> modifier == "+"
 
 export {
   messages
   failure
-  assert
+  flatten
+  hasNoModifier
+  hasOptionalModifier
+  hasWildcardModifier
+  hasPlusModifier
 }
