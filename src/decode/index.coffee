@@ -9,7 +9,7 @@ import {
   save
 } from "./helpers"
 
-import { Protocol } from "./protocol"
+import * as Protocol from "./protocol"
 import * as Domain from "./domain"
 import * as Path from "./path"
 import * as Query from "./query"

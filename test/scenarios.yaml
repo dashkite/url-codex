@@ -127,6 +127,25 @@ template:
 
 
 encode/decode:
+
+  - name: simple domain with literal
+    template: https://{subdomain}.acme.org
+    url: https://foo.acme.org
+    bindings:
+      subdomain: foo
+
+  # - name: optional domain (?) with literal
+  #   template: https://{subdomain?}.acme.org
+  #   url: https://foo.acme.org
+  #   bindings:
+  #     subdomain: foo
+
+  # - name: optional domain (?), no binding
+  #   template: https://{subdomain?}.acme.org
+  #   url: https://acme.org
+  #   bindings:
+  #     subdomain: ~
+
   - name: simple path
     template: https://acme.org/{foo}
     url: https://acme.org/abc
@@ -139,7 +158,6 @@ encode/decode:
     bindings:
       bar: abc
 
-
   - name: optional path (?)
     template: https://acme.org/{foo?}
     url: https://acme.org/abc
@@ -149,6 +167,12 @@ encode/decode:
   - name: optional path (?), no binding
     template: https://acme.org/{foo?}
     url: https://acme.org
+    bindings:
+      foo: ~
+
+  - name: optional path (?), trailing literal
+    template: https://acme.org/{foo?}/bar
+    url: https://acme.org/bar
     bindings:
       foo: ~
 
@@ -163,6 +187,12 @@ encode/decode:
     url: https://acme.org
     bindings:
       foo: []
+
+  - name: wildcard path (*), trailing literal
+    template: https://acme.org/{foo*}/bar
+    url: https://acme.org/bar
+    bindings:
+      foo: ~
 
   - name: wildcard path (+)
     template: https://acme.org/{foo+}

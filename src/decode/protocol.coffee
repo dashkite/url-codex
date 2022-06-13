@@ -10,11 +10,10 @@ import {
 # presently, the protocol can't be templatized
 # so this is basically the same as parsing a URL
 
-Protocol =
-  visitor: ( bindings ) ->
-    Fn.pipe [
-        Parse.text
-        suffix Parse.text "://"
-      ]
+visitor = ( bindings ) ->
+  Fn.pipe [
+      Parse.text
+      suffix Parse.text "://"
+    ]
 
-export { Protocol }
+export { visitor }

@@ -30,6 +30,7 @@ builders = ( bindings, state ) ->
 
   default: ( variable ) ->
     state.optional = false
+    state.leave++
     component variable
   
   "?": ( variable ) ->
@@ -42,6 +43,7 @@ builders = ( bindings, state ) ->
 
   "+": ( variable ) ->
     state.optional = false
+    state.leave++
     bindings[ variable ] = []
     list variable
 
@@ -51,7 +53,11 @@ build = Fn.pipe [
 ]
 
 visitor = ( bindings ) ->
-  state = optional: true
+
+  state =
+    optional: true
+    leave: 0
+
   Fn.pipe [
     It.map build bindings, state
     Parse.join Parse.text "."

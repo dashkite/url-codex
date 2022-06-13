@@ -34,6 +34,13 @@ do ->
     test "encode / decode", do ->
       for { name, template, url, bindings } in scenarios[ "encode/decode" ]
         test ( name ? template ), ->
+          console.log name
+          console.log template
+          console.log url
+          try
+            console.log decode template, url
+          catch error
+            console.error error
           assert.equal url, encode template, bindings
           assert.deepEqual bindings, decode template, url
 
