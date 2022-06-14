@@ -1,0 +1,4 @@
+- template: https://acme.org/{foo}
+  data:
+    foo: "abc"
+  expect: https://acme.org/abc
