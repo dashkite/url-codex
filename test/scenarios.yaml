@@ -18,6 +18,7 @@ url:
       expect:
         path: []
 
+      url: /?foo=bar
     - name: origin and path
       url: https://acme.org/foo
       expect:
