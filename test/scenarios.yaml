@@ -1,220 +1,426 @@
 url:
-  - name: origin only
-    url: https://acme.org
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
 
-  - name: origin and path
-    url: https://acme.org/foo
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      path: [ foo ]
+  success:
+    - name: origin only
+      url: https://acme.org
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
 
-  - name: origin and query
-    url: https://acme.org?foo=bar
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      query:
-        - key: foo
-          value: bar
+    - name: path only
+      url: /foo
+      expect:
+        path: [ foo ]
 
-  - name: origin, path, and query
-    url: https://acme.org/foo/bar?baz=buzz
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      path: [ foo, bar ]
-      query:
-        - key: baz
-          value: buzz
+    - name: root path
+      url: /
+      expect:
+        path: []
+
+    - name: origin and path
+      url: https://acme.org/foo
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        path: [ foo ]
+
+    - name: origin and query
+      url: https://acme.org?foo=bar
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        query:
+          - key: foo
+            value: bar
+
+    - name: origin, path, and query
+      url: https://acme.org/foo/bar?baz=buzz
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        path: [ foo, bar ]
+        query:
+          - key: baz
+            value: buzz
+
+  failure:
+  
+    - name: missing origin or path
+      type: failure
+      url: "?baz=buzz"
+      expect:
+        query:
+          - key: baz
+            value: buzz
 
 template:
-  - name: origin only
-    template: https://{subdomain}.acme.org
-    expect:
-      origin:
-        protocol: https
-        domain:
+
+  success:
+
+    - name: origin only
+      template: https://{subdomain}.acme.org
+      expect:
+        origin:
+          protocol: https
+          domain:
+            - expression:
+                variable: subdomain
+            - acme
+            - org
+
+    - name: path only
+      template: /{foo}
+      expect:
+        path:
           - expression:
-              variable: subdomain
-          - acme
-          - org
-
-  - name: path
-    template: https://acme.org/{foo}
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      path:
-        - expression:
-            variable: foo
-
-  - name: path with modifier
-    template: https://acme.org/{foo*}
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      path:
-        - expression:
-            modifier: "*"
-            variable: foo
-
-  - name: query
-    template: https://acme.org?{foo}
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      query:
-        - key: foo
-          value:
-            expression:
+              variable: foo
+    
+    - name: path
+      template: https://acme.org/{foo}
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        path:
+          - expression:
               variable: foo
 
-  - name: query with modifier
-    template: https://acme.org?{foo*}
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      query:
-        - key: foo
-          value:
-            expression:
+    - name: path with modifier
+      template: https://acme.org/{foo*}
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        path:
+          - expression:
               modifier: "*"
               variable: foo
 
-  - name: path and query
-    template: https://acme.org/{foo}?{bar}
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      path:
-        - expression:
-            variable: foo
-      query:
-        - key: bar
-          value:
-            expression:
-              variable: bar
+    - name: query
+      template: https://acme.org?{foo}
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        query:
+          - key: foo
+            value:
+              expression:
+                variable: foo
 
-  - name: path and query with modifiers
-    template: https://acme.org/{foo*}?{bar*}
-    expect:
-      origin:
-        protocol: https
-        domain: [ acme, org ]
-      path:
-        - expression:
-            modifier: "*"
-            variable: foo
-      query:
-        - key: bar
-          value:
-            expression:
+    - name: query with modifier
+      template: https://acme.org?{foo*}
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        query:
+          - key: foo
+            value:
+              expression:
+                modifier: "*"
+                variable: foo
+
+    - name: path and query
+      template: https://acme.org/{foo}?{bar}
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        path:
+          - expression:
+              variable: foo
+        query:
+          - key: bar
+            value:
+              expression:
+                variable: bar
+
+    - name: path and query with modifiers
+      template: https://acme.org/{foo*}?{bar*}
+      expect:
+        origin:
+          protocol: https
+          domain: [ acme, org ]
+        path:
+          - expression:
               modifier: "*"
-              variable: bar
+              variable: foo
+        query:
+          - key: bar
+            value:
+              expression:
+                modifier: "*"
+                variable: bar
+
+  failure:
+    - name: neither origin nor path
+      type: failure
+      template: "?{foo}"
+
 
 
 encode/decode:
+
   - name: simple path
+    template: /{foo}
+    url: /abc
+    bindings:
+      foo: abc
+
+  - name: simple path with literal
+    template: /foo/{bar}
+    url: /foo/abc
+    bindings:
+      bar: abc
+
+  - name: optional path (?)
+    template: /{foo?}
+    url: /abc
+    bindings:
+      foo: abc
+
+  - name: optional path (?), no binding
+    template: /{foo?}
+    url: /
+    bindings:
+      foo: ~
+
+  - name: wildcard path (*)
+    template: /{foo*}
+    url: /abc/def
+    bindings:
+      foo: [ abc, def ]
+
+  - name: wildcard path (*), no binding
+    template: /{foo*}
+    url: /
+    bindings:
+      foo: []
+
+  - name: wildcard path (+)
+    template: /{foo+}
+    url: /abc/def
+    bindings:
+      foo: [ abc, def ]
+
+  - name: path with special characters
+    template: /home/{login}/edit
+    url: /home/~dyoder/edit
+    bindings:
+      login: ~dyoder
+
+  - name: path with URL encoding
+    template: /home/{email}/edit
+    url: /home/danielyoder%40gmail.com/edit
+    bindings:
+      email: danielyoder@gmail.com
+
+  - name: simple query
+    template: /foo?{bar}
+    url: /foo?bar=abc
+    bindings:
+      bar: abc
+
+  - name: optional query (?)
+    template: /foo?{bar?}
+    url: /foo?bar=abc
+    bindings:
+      bar: abc
+
+  - name: optional query (?), no binding
+    template: /foo?{bar?}
+    url: /foo
+    bindings:
+      bar: ~
+
+  - name: wildcard query (*)
+    template: /foo?{bar*}
+    url: /foo?bar=abc&bar=def
+    bindings:
+      bar: [ abc, def ]
+
+  - name: simple path and query
+    template: /{foo}?{bar}
+    url: /abc?bar=123
+    bindings:
+      foo: abc
+      bar: "123"
+
+  - name: origin and simple path
     template: https://acme.org/{foo}
     url: https://acme.org/abc
     bindings:
       foo: abc
 
-  - name: simple path with literal
+  - name: origin and simple path with literal
     template: https://acme.org/foo/{bar}
     url: https://acme.org/foo/abc
     bindings:
       bar: abc
 
-
-  - name: optional path (?)
+  - name: origin and optional path (?)
     template: https://acme.org/{foo?}
     url: https://acme.org/abc
     bindings:
       foo: abc
 
-  - name: optional path (?), no binding
+  - name: origin and optional path (?), no binding
     template: https://acme.org/{foo?}
     url: https://acme.org
     bindings:
       foo: ~
 
-  - name: wildcard path (*)
+  - name: origin and wildcard path (*)
     template: https://acme.org/{foo*}
     url: https://acme.org/abc/def
     bindings:
       foo: [ abc, def ]
 
-  - name: wildcard path (*), no binding
+  - name: origin and wildcard path (*), no binding
     template: https://acme.org/{foo*}
     url: https://acme.org
     bindings:
       foo: []
 
-  - name: wildcard path (+)
+  - name: origin and wildcard path (+)
     template: https://acme.org/{foo+}
     url: https://acme.org/abc/def
     bindings:
       foo: [ abc, def ]
 
-  - name: simple query
+  - name: origin and path with special characters
+    template: https://acme.org/home/{login}/edit
+    url: https://acme.org/home/~dyoder/edit
+    bindings:
+      login: ~dyoder
+
+  - name: origin and path with URL encoding
+    template: https://acme.org/home/{email}/edit
+    url: https://acme.org/home/danielyoder%40gmail.com/edit
+    bindings:
+      email: danielyoder@gmail.com
+
+  - name: origin and simple query
     template: https://acme.org/foo?{bar}
     url: https://acme.org/foo?bar=abc
     bindings:
       bar: abc
 
-  - name: simple path and query
+  - name: origin and optional query (?)
+    template: https://acme.org/foo?{bar?}
+    url: https://acme.org/foo?bar=abc
+    bindings:
+      bar: abc
+
+  - name: origin and optional query (?), no binding
+    template: https://acme.org/foo?{bar?}
+    url: https://acme.org/foo
+    bindings:
+      bar: ~
+
+  - name: origin and wildcard query (*)
+    template: https://acme.org/foo?{bar*}
+    url: https://acme.org/foo?bar=abc&bar=def
+    bindings:
+      bar: [ abc, def ]
+
+  - name: origin, simple path, and query
     template: https://acme.org/{foo}?{bar}
     url: https://acme.org/abc?bar=123
     bindings:
       foo: abc
       bar: "123"
 
-  - name: optional query (?)
-    template: https://acme.org/foo?{bar?}
-    url: https://acme.org/foo?bar=abc
+  - name: origin, path, query with URL encoding
+    template: https://acme.org/{foo}/{bar}?{baz*}
+    url: https://acme.org/abc/def?baz=123&baz=4%205%206
     bindings:
-      bar: abc
+      foo: abc
+      bar: def
+      baz:
+        - "123"
+        - 4 5 6
 
-  - name: optional query (?), no binding
-    template: https://acme.org/foo?{bar?}
-    url: https://acme.org/foo
+  - name: origin, path, and long query with URL encoding
+    template: https://acme.org/home/{nickname}/edit?{displayName}&{blurb}&{media?}
+    url: "https://acme.org/home/dan/edit?displayName=Dan&blurb=I%E2%80%99ve%20seen%20things%20\
+        you%20people%20wouldn%E2%80%99t%20believe.%20Attack%20ships%20on%20\
+        fire%20off%20the%20shoulder%20of%20Orion.%20I%20watched%20C-beams%20\
+        glitter%20in%20the%20dark%20near%20the%20Tannh%C3%A4user%20Gate.%20\
+        All%20those%20moments%20will%20be%20lost%20in%20time%2C%20like%20\
+        tears%E2%80%A6in%E2%80%A6rain.%20Time%20to%20die."
     bindings:
-      bar: ~
+      nickname: dan
+      displayName: Dan
+      blurb: >-
+        I’ve seen things you people wouldn’t believe.
+        Attack ships on fire off the shoulder of Orion.
+        I watched C-beams glitter in the dark near the
+        Tannhäuser Gate. All those moments will be lost
+        in time, like tears…in…rain. Time to die.
+      media: ~
 
-  - name: wildcard query (*)
-    template: https://acme.org/foo?{bar*}
-    url: https://acme.org/foo?bar=abc&bar=def
-    bindings:
-      bar: [ abc, def ]
+encode:
 
-match failure:
+  failure:
 
-  - name: simple path, missing variable
-    template: https://acme.org/foo/{bar}
-    url: https://acme.org/foo
+    - name: simple path, missing variable
+      template: https://acme.org/foo/{bar}
+      bindings: {}
 
-  - name: simple path, mismatched literal
-    template: https://acme.org/foo/{bar}
-    url: https://acme.org/baz
+    - name: simple path, type mismatch
+      template: https://acme.org/foo/{bar}
+      bindings:
+        foo: [ bar ]
 
-  - name: wildcard path (+), missing variable
-    template: https://acme.org/{foo+}
-    url: https://acme.org
+    - name: wildcard path (+), type mismatch
+      template: https://acme.org/{foo+}
+      bindings:
+        foo: bar
 
-  - name: simple query, mismatched literal
-    template: https://acme.org/foo?{bar}
-    url: https://acme.org/baz?bar=abc
+    - name: simple query, missing variable
+      template: https://acme.org/foo?{bar}
+      bindings: {}
+
+    - name: simple query, type mismatch
+      template: https://acme.org/foo?{bar}
+      bindings:
+        foo: [ bar ]
+
+    - name: wildcard query (+), type mismatch
+      template: https://acme.org?{foo+}
+      bindings:
+        foo: bar
+
+decode:
+
+  failure:
+
+    - name: simple path, missing variable
+      template: https://acme.org/foo/{bar}
+      url: https://acme.org/foo
+
+    - name: simple path, mismatched literal
+      template: https://acme.org/foo/{bar}
+      url: https://acme.org/baz
+
+    - name: wildcard path (+), missing variable
+      template: https://acme.org/{foo+}
+      url: https://acme.org
+
+    - name: simple query, mismatched literal
+      template: https://acme.org/foo?{bar}
+      url: https://acme.org/baz?bar=abc
+
+    - name: simple query, missing variable
+      template: https://acme.org/foo?{bar}
+      url: https://acme.org/baz
+
+    - name: wildcard query (+), missing variable
+      template: https://acme.org/foo?{bar+}
+      url: https://acme.org/baz

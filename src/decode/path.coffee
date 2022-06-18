@@ -15,7 +15,7 @@ import {
 
 component = ( variable ) ->
   Parse.pipe [
-    Common.name
+    Common.component
     Parse.tag variable
   ]
 

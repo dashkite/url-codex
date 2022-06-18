@@ -25,13 +25,11 @@ origin = Parse.pipe [
 ]
 
 path = Parse.pipe [
-  Parse.many Parse.pipe [
-    Parse.all [
-      Parse.text "/"
-      component
-    ]
-    Parse.second
+  Parse.all [
+    Parse.skip Parse.text "/"
+    Parse.optional Parse.list ( Parse.text "/" ), component
   ]
+  Parse.flatten
   Parse.tag "path"
 ]
 
@@ -43,11 +41,13 @@ query = Parse.pipe [
 
 url = Parse.parser Parse.pipe [
   Parse.all [
-    origin
+    Parse.optional origin
     Parse.optional path
     Parse.optional query 
   ]
   Parse.merge
+  Parse.verify "origin or path",
+    ({ origin, path }) -> origin? || path?
 ]
 
 export { url }

@@ -70,17 +70,17 @@ encode = Fn.curry ( template, bindings ) ->
   result = ""
   append = (value) -> result += value
   traverse ( Parsers.template template ),
+    expression: evaluate bindings
     protocol: Fn.pipe [
       suffix "://"
       append
     ]
     domain: Fn.pipe [
-      flatten
       It.join "."
       append
     ]
     path: Fn.pipe [
-      flatten
+      It.map encodeURIComponent
       It.join "/"
       prefix "/"
       append
@@ -91,13 +91,15 @@ encode = Fn.curry ( template, bindings ) ->
         if Type.isArray value
           { key, value: _value } for _value in value
         else { key, value }
-      flatten
-      It.map ({ key, value }) -> "#{key}=#{value}"
+      It.map ({ key, value }) -> "#{key}=#{encodeURIComponent value}"
       It.join "&"
       prefix "?"
       append
     ]
-    expression: evaluate bindings
+    missing:
+      # if there's no origin, include leading /
+      path: -> result = "/" if result == ""
+          
   result
 
 export { encode }

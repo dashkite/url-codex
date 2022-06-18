@@ -16,10 +16,17 @@ name = Parse.pipe [
   Parse.map Text.toLowerCase
 ]
 
-component = Parse.re /^[\w\-\.\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@]+/
+component = Parse.pipe [
+  Parse.re /^[\w\-\.\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@]+/
+  Parse.map decodeURIComponent
+]
 
 symbol = Parse.re /^[\w\-]+/
-value = Parse.re /^[\w\-\.\~\%\!\$\'\(\)\*\+\,\;\:\@\/\?]+/
+
+value = Parse.pipe [
+  Parse.re /^[\w\-\.\~\%\!\$\'\(\)\*\+\,\;\:\@\/\?]+/
+  Parse.map decodeURIComponent
+]
 
 assignment = Parse.pipe [
   Parse.all [
