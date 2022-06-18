@@ -1,3 +1,22 @@
+literals:
+  A: abc
+  B: def
+  C: ghi
+
+variables:
+  A: foo
+  B: bar
+  C: baz
+
+cases:
+  path:
+    - name: root
+      template: /
+      expect:
+        parse:
+          path: []
+
+
 url:
 
   success:
@@ -18,7 +37,14 @@ url:
       expect:
         path: []
 
+    - name: root path with query
       url: /?foo=bar
+      expect:
+        path: []
+        query:
+          - key: foo
+            value: bar
+
     - name: origin and path
       url: https://acme.org/foo
       expect:
@@ -222,10 +248,17 @@ encode/decode:
       email: danielyoder@gmail.com
 
   - name: simple query
-    template: /foo?{bar}
-    url: /foo?bar=abc
+    template: /?{bar}
+    url: /?bar=abc
     bindings:
       bar: abc
+
+  - name: multiple query pairs
+    template: /foo?{bar}&{baz}
+    url: /foo?bar=abc&baz=def
+    bindings:
+      bar: abc
+      baz: def
 
   - name: optional query (?)
     template: /foo?{bar?}
@@ -311,6 +344,14 @@ encode/decode:
     url: https://acme.org/foo?bar=abc
     bindings:
       bar: abc
+
+  - name: origin and multiple query pairs
+    template: https://acme.org?{bar}&{baz}
+    url: https://acme.org?bar=abc&baz=def
+    bindings:
+      bar: abc
+      baz: def
+
 
   - name: origin and optional query (?)
     template: https://acme.org/foo?{bar?}
