@@ -79,6 +79,9 @@ do ->
 
         for { name, template, url } in scenarios[ "decode" ][ "failure" ]
           test ( name ? template ), ->
+            try
+              console.log decode template, url
+
             assert.throws -> decode template, url
 
 

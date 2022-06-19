@@ -4,8 +4,7 @@ import * as It from "@dashkite/joy/iterable"
 
 import * as Common from "../parsers/common"
 import {
-  build as _build
-  optional
+  evaluate
 } from "./helpers"
 
 # Domain parser helpers
@@ -22,7 +21,7 @@ list = ( variable ) ->
     Parse.tag variable
   ]
 
-builders = ( bindings, state ) ->
+handlers = ( bindings, state ) ->
 
   literal: ( text ) ->
     state.optional = false
@@ -45,17 +44,22 @@ builders = ( bindings, state ) ->
     bindings[ variable ] = []
     list variable
 
-build = Fn.pipe [
-  builders
-  _build
-]
+
+delimiter = Parse.text "."
 
 visitor = ( bindings ) ->
   state = optional: true
   Fn.pipe [
-    It.map build bindings, state
-    Parse.join Parse.text "."
-    optional state
+    It.map evaluate handlers bindings, state
+    ( patterns ) ->
+      Parse.all [
+        Parse.pipe [
+          Parse.join delimiter, patterns
+          Parse.flatten
+          Parse.merge
+        ]
+      ]
+    ( parser ) -> if state.optional then Parse.optional parser else parser
   ]
 
 export { visitor }

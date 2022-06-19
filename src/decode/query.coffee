@@ -5,9 +5,7 @@ import * as It from "@dashkite/joy/iterable"
 import * as Common from "../parsers/common"
 
 import {
-  prefix
-  build as _build
-  optional
+  evaluate
 } from "./helpers"
 
 # Query parser helpers
@@ -23,7 +21,7 @@ assignment = ( variable ) ->
     Parse.tag variable
   ]
 
-builders = ( bindings, state ) ->
+handlers = ( bindings, state ) ->
 
   literal: ({ key, value }) ->
     state.optional = false
@@ -35,6 +33,7 @@ builders = ( bindings, state ) ->
 
   default: ( variable ) ->
     state.optional = false
+    state.required.push variable
     assignment variable
 
   "?": ( variable ) ->
@@ -47,22 +46,34 @@ builders = ( bindings, state ) ->
 
   "+": ( variable ) ->
     state.optional = false
+    state.required.push variable
     bindings[ variable ] = []
     assignment variable
 
-build = Fn.pipe [
-  builders
-  _build
-]
+start = Parse.text "?"
+delimiter = Parse.text "&"
 
 visitor = ( bindings ) ->
-  state = optional: true
+  state = 
+    optional: true
+    required: []
   Fn.pipe [
-    It.map build bindings, state
-    Parse.any
-    Parse.list Parse.text "&"
-    prefix Parse.skip Parse.text "?"
-    optional state
+    It.map evaluate handlers bindings, state
+    ( patterns ) ->
+      Parse.all [
+        Parse.skip start
+        Parse.pipe [
+          Parse.list delimiter, Parse.any patterns
+          Parse.flatten
+          Parse.merge
+          Parse.verify 
+            expected: "required query parameters"
+            ( value ) ->
+              state.required.every (variable) -> value[ variable ]?
+        ]
+      ]
+    ( parser ) -> if state.optional then Parse.optional parser else parser
   ]
+
 
 export { visitor }

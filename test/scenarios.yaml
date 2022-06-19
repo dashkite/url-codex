@@ -18,7 +18,14 @@ url:
       expect:
         path: []
 
+    - name: root path with query
       url: /?foo=bar
+      expect:
+        path: []
+        query:
+          - key: foo
+            value: bar
+
     - name: origin and path
       url: https://acme.org/foo
       expect:
@@ -101,7 +108,17 @@ template:
               modifier: "*"
               variable: foo
 
-    - name: query
+    - name: root path with query
+      template: /?{foo}
+      expect:
+        path: []
+        query:
+          - key: foo
+            value:
+              expression:
+                variable: foo
+
+    - name: origin and query
       template: https://acme.org?{foo}
       expect:
         origin:
@@ -113,7 +130,7 @@ template:
               expression:
                 variable: foo
 
-    - name: query with modifier
+    - name: origin and query with modifier
       template: https://acme.org?{foo*}
       expect:
         origin:
@@ -126,7 +143,7 @@ template:
                 modifier: "*"
                 variable: foo
 
-    - name: path and query
+    - name: origin, path, and query
       template: https://acme.org/{foo}?{bar}
       expect:
         origin:
@@ -141,7 +158,7 @@ template:
               expression:
                 variable: bar
 
-    - name: path and query with modifiers
+    - name: origin, path, and query with modifiers
       template: https://acme.org/{foo*}?{bar*}
       expect:
         origin:
@@ -162,7 +179,6 @@ template:
     - name: neither origin nor path
       type: failure
       template: "?{foo}"
-
 
 
 encode/decode:
@@ -425,3 +441,7 @@ decode:
     - name: wildcard query (+), missing variable
       template: https://acme.org/foo?{bar+}
       url: https://acme.org/baz
+
+    - name: path and query, missing query variable
+      template: /{foo}/{bar}?{baz}&{bug}
+      url: /abc/def?baz=123

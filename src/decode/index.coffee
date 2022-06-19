@@ -4,17 +4,12 @@ import * as Fn from "@dashkite/joy/function"
 import * as Parsers from "../parsers"
 import { traverse } from "../traverse"
 
-import {
-  push
-  save
-} from "./helpers"
-
 import { Protocol } from "./protocol"
 import * as Domain from "./domain"
 import * as Path from "./path"
 import * as Query from "./query"
 
-# At last, we come to the main event...
+push = Fn.curry ( px, p ) -> px.push p
 
 decode = Fn.curry ( template, url ) ->
 
@@ -54,17 +49,15 @@ decode = Fn.curry ( template, url ) ->
   parse = Parse.parser Parse.pipe [
     Parse.all patterns
     Parse.flatten
-    Parse.map save bindings
+    Parse.merge
+    Parse.map ( results ) -> { bindings..., results... }
   ]
 
   # we can now parse the URL--
-  # we could arrange for this to return the bindings
-  # directly, but this is simpler since we don't have
-  # to worry about merging them
   parse url
 
   # finally, we have the bindings, which we return
-  bindings
+  # bindings
 
 # match is just decode but we ignore parsing errors
 match = Fn.curry ( template, url ) ->

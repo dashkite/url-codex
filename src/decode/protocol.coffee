@@ -1,10 +1,6 @@
 import * as Parse from "@dashkite/parse"
 import * as Fn from "@dashkite/joy/function"
 
-import {
-  suffix
-} from "./helpers"
-
 # Protocol parser helpers
 
 # presently, the protocol can't be templatized
@@ -12,9 +8,10 @@ import {
 
 Protocol =
   visitor: ( bindings ) ->
-    Fn.pipe [
-        Parse.text
-        suffix Parse.text "://"
+    ( protocol ) ->
+      Parse.all [
+        Parse.skip Parse.text protocol
+        Parse.skip Parse.text "://"
       ]
 
 export { Protocol }
