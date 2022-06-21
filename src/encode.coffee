@@ -8,57 +8,72 @@ import * as Parsers from "./parsers"
 import {
   failure
   flatten
-  hasNoModifier
-  hasOptionalModifier
-  hasWildcardModifier
-  hasPlusModifier
 } from "./helpers"
 
 import { traverse } from "./traverse"
 
-evaluate = generic name: "evaluate"
+required = (f) ->
+  ( bindings, description ) ->
+    if bindings[ description.variable ]?
+      f bindings, description
+    else 
+      throw failure "missing variable", 
+        variable: description.variable
 
-generic evaluate, Type.isObject, hasNoModifier,
-  ( bindings, { variable, modifier }) ->
-    if ( value = bindings[ variable ] )?
-      if Type.isString value
-        value
-      else
-        throw failure "expected string", { variable }
-    else
-      throw failure "missing variable", { variable }
+optional = ( fallback, f ) ->
+  ( bindings, description ) ->
+    if bindings[ description.variable ]?
+      f bindings, description
+    else 
+      fallback
 
-generic evaluate, Type.isObject, hasOptionalModifier,
-  ( bindings, { variable, modifier }) -> 
-    if ( value = bindings[ variable ] )?
-      if Type.isString value
-        value
-      else
-        throw failure "expected string", { variable }
-    else
-      null    
+validators =
 
-generic evaluate, Type.isObject, hasWildcardModifier,
-  ( bindings, { variable, modifier }) ->
-    if ( value = bindings[ variable ] )?
-      if Type.isArray value
-        value
-      else
-        throw failure "expected array", { variable }
+  string: ( bindings, { variable } ) ->
+    value = bindings[ variable ]
+    if Type.isString value
+      value
     else
-      []
-      
-generic evaluate, Type.isObject, hasPlusModifier,
-  ( bindings, { variable, modifier }) ->
-    if ( value = bindings[ variable ] )?
-      if Type.isArray value
-        value
-      else 
-        throw failure "expected array", { variable }
-    else
-      throw failure "missing variable", { variable }
+      throw failure "expected string", { variable }
 
-evaluate = Fn.curry Fn.binary evaluate
+  array: ( bindings, { variable } ) ->
+    value = bindings[ variable ]
+    if Type.isArray value
+      value
+    else
+      throw failure "expected array", { variable }
+
+  object: ( bindings, { variable } ) ->
+    value = bindings[ variable ]
+    if Type.isObject value
+      value
+    else
+      throw failure "expected object", { variable }
+
+Object.assign validators,
+
+  path:
+    default: required validators.string
+    "?": optional null, validators.string
+    "*": optional [], validators.array
+    "+": required validators.array
+
+  domain:
+    default: required validators.string
+    "?": optional null, validators.string
+    "*": optional [], validators.array
+    "+": required validators.array
+
+  query:
+    default: required validators.string
+    "?": optional null, validators.string
+    "*": optional {}, validators.object
+    "+": required validators.object
+
+evaluate = Fn.curry ( bindings, description ) ->
+  { type, modifier } = description
+  modifier ?= "default"
+  validators[ type ][ modifier ] bindings, description
 
 prefix = Fn.curry ( p, value ) -> 
   if value? && value != "" then p + value else value
@@ -88,9 +103,11 @@ encode = Fn.curry ( template, bindings ) ->
     query: Fn.pipe [
       It.select ({ key, value }) -> value?
       It.map ({ key, value }) ->
-        if Type.isArray value
-          { key, value: _value } for _value in value
+        if Type.isObject value
+          It.map ( ([ key, value ]) -> { key, value } ),
+            Object.entries value
         else { key, value }
+      flatten
       It.map ({ key, value }) -> "#{key}=#{encodeURIComponent value}"
       It.join "&"
       prefix "?"

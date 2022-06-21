@@ -10,6 +10,10 @@ import {
 
 # Query parser helpers
 
+start = Parse.text "?"
+
+delimiter = Parse.text "&"
+
 assignment = ( variable ) ->
   Parse.pipe [
     Parse.all [
@@ -18,6 +22,20 @@ assignment = ( variable ) ->
       Common.value
     ]
     Parse.first
+    Parse.tag variable
+  ]
+
+group = ( variable ) ->
+  Parse.pipe [
+    Parse.list delimiter, Parse.pipe [
+      Parse.all [
+        Common.symbol
+        Parse.skip Parse.text "="
+        Common.value
+      ]
+      Parse.map ([ key, value ]) -> [ key ]: value
+    ]
+    Parse.merge
     Parse.tag variable
   ]
 
@@ -41,17 +59,14 @@ handlers = ( bindings, state ) ->
     assignment variable
 
   "*": ( variable ) ->
-    bindings[ variable ] = []
-    assignment variable
+    bindings[ variable ] = {}
+    group variable
 
   "+": ( variable ) ->
     state.optional = false
     state.required.push variable
-    bindings[ variable ] = []
-    assignment variable
-
-start = Parse.text "?"
-delimiter = Parse.text "&"
+    bindings[ variable ] = {}
+    group variable
 
 visitor = ( bindings ) ->
   state = 
@@ -66,6 +81,9 @@ visitor = ( bindings ) ->
           Parse.list delimiter, Parse.any patterns
           Parse.flatten
           Parse.merge
+          # TODO we need a better version of verify
+          #      where we can tailor the error message
+          #      based on which parameter is missing
           Parse.verify 
             expected: "required query parameters"
             ( value ) ->

@@ -76,6 +76,7 @@ template:
           protocol: https
           domain:
             - expression:
+                type: domain
                 variable: subdomain
             - acme
             - org
@@ -85,6 +86,7 @@ template:
       expect:
         path:
           - expression:
+              type: path
               variable: foo
     
     - name: path
@@ -95,6 +97,7 @@ template:
           domain: [ acme, org ]
         path:
           - expression:
+              type: path
               variable: foo
 
     - name: path with modifier
@@ -105,6 +108,7 @@ template:
           domain: [ acme, org ]
         path:
           - expression:
+              type: path
               modifier: "*"
               variable: foo
 
@@ -116,6 +120,7 @@ template:
           - key: foo
             value:
               expression:
+                type: query
                 variable: foo
 
     - name: origin and query
@@ -128,6 +133,7 @@ template:
           - key: foo
             value:
               expression:
+                type: query
                 variable: foo
 
     - name: origin and query with modifier
@@ -140,6 +146,7 @@ template:
           - key: foo
             value:
               expression:
+                type: query
                 modifier: "*"
                 variable: foo
 
@@ -151,11 +158,13 @@ template:
           domain: [ acme, org ]
         path:
           - expression:
+              type: path
               variable: foo
         query:
           - key: bar
             value:
               expression:
+                type: query
                 variable: bar
 
     - name: origin, path, and query with modifiers
@@ -166,22 +175,32 @@ template:
           domain: [ acme, org ]
         path:
           - expression:
+              type: path
               modifier: "*"
               variable: foo
         query:
           - key: bar
             value:
               expression:
+                type: query
                 modifier: "*"
                 variable: bar
 
+    - name: root path alone
+      template: /
+      expect:
+        path: []
   failure:
     - name: neither origin nor path
-      type: failure
       template: "?{foo}"
 
 
 encode/decode:
+
+  - name: root path only
+    template: /
+    url: /
+    bindings: {}
 
   - name: simple path
     template: /{foo}
@@ -257,9 +276,11 @@ encode/decode:
 
   - name: wildcard query (*)
     template: /foo?{bar*}
-    url: /foo?bar=abc&bar=def
+    url: /foo?baz=abc&buzz=def
     bindings:
-      bar: [ abc, def ]
+      bar:
+        baz: abc
+        buzz: def
 
   - name: simple path and query
     template: /{foo}?{bar}
@@ -342,9 +363,11 @@ encode/decode:
 
   - name: origin and wildcard query (*)
     template: https://acme.org/foo?{bar*}
-    url: https://acme.org/foo?bar=abc&bar=def
+    url: https://acme.org/foo?baz=abc&buzz=def
     bindings:
-      bar: [ abc, def ]
+      bar:
+        baz: abc
+        buzz: def
 
   - name: origin, simple path, and query
     template: https://acme.org/{foo}?{bar}
@@ -355,13 +378,13 @@ encode/decode:
 
   - name: origin, path, query with URL encoding
     template: https://acme.org/{foo}/{bar}?{baz*}
-    url: https://acme.org/abc/def?baz=123&baz=4%205%206
+    url: https://acme.org/abc/def?buzz=123&fizz=4%205%206
     bindings:
       foo: abc
       bar: def
       baz:
-        - "123"
-        - 4 5 6
+        buzz: "123"
+        fizz: 4 5 6
 
   - name: origin, path, and long query with URL encoding
     template: https://acme.org/home/{nickname}/edit?{displayName}&{blurb}&{media?}

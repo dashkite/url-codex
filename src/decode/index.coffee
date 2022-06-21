@@ -46,18 +46,24 @@ decode = Fn.curry ( template, url ) ->
   # okay, we now have a list of parsers, each corresponding
   # to part of the URL (origin, path, query). we combine those
   # and then process the resulting bindings.
-  parse = Parse.parser Parse.pipe [
-    Parse.all patterns
-    Parse.flatten
-    Parse.merge
-    Parse.map ( results ) -> { bindings..., results... }
-  ]
+
+  parse = Parse.parser do ->
+    if patterns.length > 0
+      Parse.pipe [
+        Parse.all patterns
+        Parse.flatten
+        Parse.merge
+        Parse.map ( results ) -> { bindings..., results... }
+      ]
+    else
+      # the template is just /
+      Parse.pipe [
+        Parse.skip Parse.text "/"
+        Parse.map -> {}
+      ]
 
   # we can now parse the URL--
   parse url
-
-  # finally, we have the bindings, which we return
-  # bindings
 
 # match is just decode but we ignore parsing errors
 match = Fn.curry ( template, url ) ->

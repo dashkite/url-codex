@@ -26,21 +26,23 @@ modifier = Parse.pipe [
   Parse.tag "modifier"
 ]
 
-expression = Parse.pipe [
-  Parse.between [ ( Parse.text "{" ), ( Parse.text "}") ],
-    Parse.pipe [
-      Parse.all [
-        variable
-        Parse.optional modifier
+expression = ( type ) ->
+  Parse.pipe [
+    Parse.between [ ( Parse.text "{" ), ( Parse.text "}") ],
+      Parse.pipe [
+        Parse.all [
+          variable
+          Parse.optional modifier
+        ]
+        Parse.merge
+        Parse.map ( expression ) -> { expression..., type }
       ]
-      Parse.merge
-    ]
-  Parse.tag "expression"
-]
+    Parse.tag "expression"
+  ]
 
 domain = Parse.pipe [
   Parse.list ( Parse.text "." ), Parse.any [
-    expression
+    expression "domain"
     name
   ]
   Parse.tag "domain"
@@ -61,7 +63,7 @@ path = Parse.pipe [
     Parse.skip Parse.text "/"
     Parse.optional Parse.list ( Parse.text "/" ), 
       Parse.any [
-        expression
+        expression "path"
         component
       ]
   ]
@@ -75,7 +77,7 @@ query = Parse.pipe [
   Parse.list ( Parse.skip Parse.text "&" ),
     Parse.any [ 
       Parse.pipe [
-        expression
+        expression "query"
         Parse.map ({ expression }) ->
           key: expression.variable
           value: { expression }

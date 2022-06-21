@@ -3,15 +3,9 @@ import * as Type from "@dashkite/joy/type"
 import * as Val from "@dashkite/joy/value"
 import * as It from "@dashkite/joy/iterable"
 
-# TODO we really need to add this to Joy
-flatten = ( it ) ->
-  result = []
-  for x from it
-    if Type.isArray x
-      result = [ result..., x... ]
-    else
-      result = [ result..., x ]
-  result
+import {
+  flatten
+} from "./helpers"
 
 traverse = (tree, handlers) ->
 
@@ -69,7 +63,7 @@ traverse = (tree, handlers) ->
   else
     handlers.missing?.path?()
 
-  if resolved.query && ! Val.isEmpty resolved.query
+  if resolved.query? && ! Val.isEmpty resolved.query
     handlers.query? resolved.query 
   else
     handlers.missing?.query?()

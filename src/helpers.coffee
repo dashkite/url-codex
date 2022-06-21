@@ -11,16 +11,19 @@ messages.prefix = "url-codex"
 failure = ( code, context ) ->
   messages.failure code, context
 
-hasNoModifier = ({ modifier }) -> !modifier?
-hasOptionalModifier = ({ modifier }) -> modifier == "?" 
-hasWildcardModifier = ({ modifier }) -> modifier == "*"
-hasPlusModifier = ({ modifier }) -> modifier == "+"
+# TODO we really need to add this to Joy
+flatten = ( it ) ->
+  result = []
+  for x from it
+    if Type.isArray x
+      result = [ result..., x... ]
+    else
+      result = [ result..., x ]
+  result
+
 
 export {
   messages
   failure
-  hasNoModifier
-  hasOptionalModifier
-  hasWildcardModifier
-  hasPlusModifier
+  flatten
 }

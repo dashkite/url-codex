@@ -7,6 +7,9 @@ expected string: >-
 expected array: >-
   Expected array for [ ${ variable } ]
 
+expected object: >-
+  Expected object for [ ${ variable } ]
+
 expected at least one: >-
   Expected at least one query parameter with key [ ${ key } ]
 
