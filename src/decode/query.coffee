@@ -17,7 +17,10 @@ delimiter = Parse.text "&"
 assignment = ( variable ) ->
   Parse.pipe [
     Parse.all [
-      Parse.skip Parse.text variable
+      Parse.skip Parse.pipe [
+        Common.symbol
+        Parse.test variable, ( value ) -> value == variable
+      ]
       Parse.skip Parse.text "="
       Common.value
     ]

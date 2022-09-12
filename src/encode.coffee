@@ -20,55 +20,53 @@ required = (f) ->
       throw failure "missing variable", 
         variable: description.variable
 
-optional = ( fallback, f ) ->
+optional = ( f, fallback ) ->
   ( bindings, description ) ->
     if bindings[ description.variable ]?
       f bindings, description
     else 
       fallback
 
+string = ( bindings, { variable } ) ->
+  value = bindings[ variable ]
+  if Type.isString value
+    value
+  else
+    throw failure "expected string", { variable }
+
+array = ( bindings, { variable } ) ->
+  value = bindings[ variable ]
+  if Type.isArray value
+    value
+  else
+    throw failure "expected array", { variable }
+
+object = ( bindings, { variable } ) ->
+  value = bindings[ variable ]
+  if Type.isObject value
+    value
+  else
+    throw failure "expected object", { variable }
+
 validators =
 
-  string: ( bindings, { variable } ) ->
-    value = bindings[ variable ]
-    if Type.isString value
-      value
-    else
-      throw failure "expected string", { variable }
-
-  array: ( bindings, { variable } ) ->
-    value = bindings[ variable ]
-    if Type.isArray value
-      value
-    else
-      throw failure "expected array", { variable }
-
-  object: ( bindings, { variable } ) ->
-    value = bindings[ variable ]
-    if Type.isObject value
-      value
-    else
-      throw failure "expected object", { variable }
-
-Object.assign validators,
-
   path:
-    default: required validators.string
-    "?": optional null, validators.string
-    "*": optional [], validators.array
-    "+": required validators.array
+    default: required string
+    "?": optional string, null
+    "*": optional array, []
+    "+": required array
 
   domain:
-    default: required validators.string
-    "?": optional null, validators.string
-    "*": optional [], validators.array
-    "+": required validators.array
+    default: required string
+    "?": optional string, null
+    "*": optional array, []
+    "+": required array
 
   query:
-    default: required validators.string
-    "?": optional null, validators.string
-    "*": optional {}, validators.object
-    "+": required validators.object
+    default: required string
+    "?": optional string, null
+    "*": optional object, {}
+    "+": required object
 
 evaluate = Fn.curry ( bindings, description ) ->
   { type, modifier } = description

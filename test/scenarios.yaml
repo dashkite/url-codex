@@ -244,6 +244,12 @@ encode/decode:
     bindings:
       foo: [ abc, def ]
 
+  - name: path with special characters in literal
+    template: /home/{login}/edit+metadata
+    url: /home/~dyoder/edit%2Bmetadata
+    bindings:
+      login: ~dyoder
+
   - name: path with special characters
     template: /home/{login}/edit
     url: /home/~dyoder/edit

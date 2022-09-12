@@ -11,6 +11,8 @@ import {
 
 # Path parser helpers
 
+delimiter = Parse.text "/"
+
 component = ( variable ) ->
   Parse.pipe [
     Common.component
@@ -19,7 +21,7 @@ component = ( variable ) ->
 
 list = ( variable ) ->
   Parse.pipe [
-    Parse.list ( Parse.text "/" ), Common.component
+    Parse.list delimiter, Common.component
     Parse.tag variable
   ]
 
@@ -27,7 +29,10 @@ handlers = ( bindings, state ) ->
 
   literal: ( text ) ->
     state.optional = false
-    Parse.skip Parse.text text
+    Parse.skip Parse.pipe [
+      Common.component
+      Parse.test text, ( value ) -> value == text
+    ]
 
   default: ( variable ) ->
     state.optional = false
@@ -45,8 +50,6 @@ handlers = ( bindings, state ) ->
     state.optional = false
     bindings[ variable ] = []
     list variable
-
-delimiter = Parse.text "/"
 
 visitor = ( bindings ) ->
   state = optional: true
