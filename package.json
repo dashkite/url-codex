@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@dashkite/joy": "^0.3.16",
-    "@dashkite/messages": "file:../messages",
     "@dashkite/parse": "file:../parse"
   }
 }
