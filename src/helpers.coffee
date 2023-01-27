@@ -1,15 +1,15 @@
 import * as Fn from "@dashkite/joy/function"
 import * as Type from "@dashkite/joy/type"
-import { Messages } from "@dashkite/messages"
+# import { Messages } from "@dashkite/messages"
 import failures from "./failures"
 import * as Parsers from "./parsers"
 
-messages = Messages.create()
-messages.add failures
-messages.prefix = "url-codex"
+# messages = Messages.create()
+# messages.add failures
+# messages.prefix = "url-codex"
 
 failure = ( code, context ) ->
-  messages.failure code, context
+  failures[code]
 
 # TODO we really need to add this to Joy
 flatten = ( it ) ->
@@ -23,7 +23,7 @@ flatten = ( it ) ->
 
 
 export {
-  messages
+  # messages
   failure
   flatten
 }
