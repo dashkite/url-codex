@@ -31,4 +31,4 @@ presets:
       browser: *yaml
 
 
-sky: {}
+modules: {}
