@@ -14,7 +14,7 @@ specifiers:
 
 dependencies:
   '@dashkite/joy': 0.3.16
-  '@dashkite/parse': link:../parse
+  '@dashkite/parse': 0.3.1
 
 devDependencies:
   '@dashkite/amen': 0.1.2
@@ -2191,6 +2191,10 @@ packages:
       - supports-color
       - utf-8-validate
     dev: true
+
+  /@dashkite/parse/0.3.1:
+    resolution: {integrity: sha512-Gvl3quYsU2x+WZXNPR6NSBd96VHzVhoWPfRUH+30ngFZVEZEVdROupILT23RRPK7TIVQo0k4ghUNtmSh5Mjwjg==}
+    dev: false
 
   /@dashkite/writeme/0.2.0:
     resolution: {integrity: sha512-bAKlW98jo3H/2K/9UyLxBH2GzHpd7U6OUXNH5dCDCRQlTbC1HlpeswojEGPmTGbM8soR+vStItJ7siSqywqn0A==}
