@@ -9,12 +9,12 @@ specifiers:
   '@dashkite/genie-presets': ^0.6.2
   '@dashkite/joy': ^0.3.16
   '@dashkite/messages': link:../messages
-  '@dashkite/parse': link:../parse
+  '@dashkite/parse': ^0.4.3
   '@dashkite/sky-presets': link:../sky-presets
 
 dependencies:
   '@dashkite/joy': 0.3.16
-  '@dashkite/parse': 0.3.1
+  '@dashkite/parse': 0.4.3
 
 devDependencies:
   '@dashkite/amen': 0.1.2
@@ -2192,8 +2192,10 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@dashkite/parse/0.3.1:
-    resolution: {integrity: sha512-Gvl3quYsU2x+WZXNPR6NSBd96VHzVhoWPfRUH+30ngFZVEZEVdROupILT23RRPK7TIVQo0k4ghUNtmSh5Mjwjg==}
+  /@dashkite/parse/0.4.3:
+    resolution: {integrity: sha512-bE0kBjaGYjUnCzWJelQnx8vsfJ9YP07aRTVFZoY7TZWvMmnihoCSugL4IVWAOA2O0EAZXjT8FcjA4bNJ/BQwwg==}
+    dependencies:
+      '@dashkite/joy': 0.3.16
     dev: false
 
   /@dashkite/writeme/0.2.0:

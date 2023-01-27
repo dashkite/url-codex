@@ -36,6 +36,6 @@
   },
   "dependencies": {
     "@dashkite/joy": "^0.3.16",
-    "@dashkite/parse": "link:../parse"
+    "@dashkite/parse": "^0.4.3"
   }
 }
