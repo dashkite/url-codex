@@ -465,7 +465,7 @@ decode:
 
     - name: simple query, missing variable
       template: https://acme.org/foo?{bar}
-      url: https://acme.org/baz
+      url: https://acme.org/foo
 
     - name: wildcard query (+), missing variable
       template: https://acme.org/foo?{bar+}
