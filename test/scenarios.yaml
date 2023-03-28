@@ -190,6 +190,18 @@ template:
       template: /
       expect:
         path: []
+
+    - name: root path with query
+      template: /?{foo*}
+      expect:
+        path: []
+        query:
+          - key: foo
+            value:
+              expression:
+                type: query
+                modifier: "*"
+                variable: foo
   failure:
     - name: neither origin nor path
       template: "?{foo}"
@@ -279,6 +291,15 @@ encode/decode:
     url: /foo
     bindings:
       bar: ~
+
+  - name: root path with wildcard query (*)
+    template: /{foo?}?{bar*}
+    url: /?baz=abc&buzz=def
+    bindings:
+      foo: ~
+      bar:
+        baz: abc
+        buzz: def
 
   - name: wildcard query (*)
     template: /foo?{bar*}
