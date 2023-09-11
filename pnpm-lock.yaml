@@ -25,15 +25,12 @@ devDependencies:
   '@dashkite/genie':
     specifier: link:../genie
     version: link:../genie
-  '@dashkite/genie-modules':
-    specifier: link:../genie-modules
-    version: link:../genie-modules
-  '@dashkite/messages':
-    specifier: link:../messages
-    version: link:../messages
-  '@dashkite/sky-presets':
-    specifier: link:../sky-presets
-    version: link:../sky-presets
+  '@dashkite/genie-coffee':
+    specifier: link:../genie-coffee
+    version: link:../genie-coffee
+  '@dashkite/genie-yaml':
+    specifier: link:../genie-yaml
+    version: link:../genie-yaml
 
 packages:
 
