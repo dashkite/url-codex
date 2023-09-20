@@ -2,7 +2,8 @@ import * as Parse from "@dashkite/parse"
 import * as Text from "@dashkite/joy/text"
 
 protocol = Parse.pipe [
-  Parse.text "https"
+  # Parse.text "https"
+  Parse.re /^https|http|drn/
   Parse.tag "protocol"
 ]
 
