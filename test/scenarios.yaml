@@ -238,6 +238,20 @@ encode/decode:
     bindings:
       foo: ~
 
+  - name: optional trailing path (?)
+    template: /{foo}/{bar?}
+    url: /abc/def
+    bindings:
+      foo: abc
+      bar: def
+
+  - name: optional trailing path (?), no binding
+    template: /{foo}/{bar?}
+    url: /abc
+    bindings:
+      foo: abc
+      bar: ~
+  
   - name: wildcard path (*)
     template: /{foo*}
     url: /abc/def

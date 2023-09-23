@@ -30,39 +30,59 @@ handlers = ( bindings, state ) ->
   literal: ( text ) ->
     state.optional = false
     Parse.skip Parse.pipe [
-      Common.component
+      Parse.all [
+        Parse.skip delimiter
+        Common.component
+      ]
+      Parse.first
       Parse.test text, ( value ) -> value == text
     ]
 
   default: ( variable ) ->
     state.optional = false
-    component variable
+    Parse.pipe [
+      Parse.all [
+        Parse.skip delimiter
+        component variable
+      ]
+      Parse.first
+    ]
+    
 
   "?": ( variable ) ->
     bindings[ variable ] = null
-    Parse.optional component variable
+    Parse.optional Parse.all [
+      Parse.skip delimiter
+      component variable
+    ]
 
   "*": ( variable ) ->
     bindings[ variable ] = []
-    Parse.optional list variable
+    Parse.optional Parse.all [
+      Parse.skip delimiter
+      list variable
+    ]
 
   "+": ( variable ) ->
     state.optional = false
     bindings[ variable ] = []
-    list variable
+    Parse.all [
+      Parse.skip delimiter
+      list variable
+    ]
 
 visitor = ( bindings ) ->
   state = optional: true
   Fn.pipe [
     It.map evaluate handlers bindings, state
     ( patterns ) ->
-      Parse.all [
-        Parse.skip delimiter
-        Parse.pipe [
-          Parse.join delimiter, patterns
-          Parse.flatten
-          Parse.merge
+      Parse.pipe [
+        Parse.all [
+          patterns...
+          Parse.skip Parse.optional delimiter
         ]
+        Parse.flatten
+        Parse.merge
       ]
     ( parser ) -> if state.optional then Parse.optional parser else parser
   ]  
