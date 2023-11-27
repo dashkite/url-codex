@@ -1,6 +1,6 @@
 {
   "name": "@dashkite/url-codex",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple JSON Query-based text interpolation for JavaScript",
   "exports": {
     ".": {
@@ -24,7 +24,7 @@
     "build/node/src",
     "build/browser/src"
   ],
-"repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/dashkite/url-codex.git"
   },
