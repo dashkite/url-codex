@@ -39,7 +39,7 @@
     "@dashkite/genie-yaml": "link:../genie-yaml"
   },
   "dependencies": {
-    "@dashkite/joy": "^0.3.16",
+    "@dashkite/joy": "link:../joy",
     "@dashkite/parse": "^0.4.3"
   }
 }

@@ -1,5 +1,6 @@
 import * as Fn from "@dashkite/joy/function"
 import * as Type from "@dashkite/joy/type"
+import * as Text from "@dashkite/joy/text"
 # import { Messages } from "@dashkite/messages"
 import failures from "./failures"
 import * as Parsers from "./parsers"
@@ -9,7 +10,7 @@ import * as Parsers from "./parsers"
 # messages.prefix = "url-codex"
 
 failure = ( code, context ) ->
-  failures[code]
+  Text.interpolate failures[code], context
 
 # TODO we really need to add this to Joy
 flatten = ( it ) ->
