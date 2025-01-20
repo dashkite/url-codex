@@ -11,7 +11,7 @@ Protocol =
     ( protocol ) ->
       Parse.all [
         Parse.skip Parse.text protocol
-        Parse.skip Parse.text "://"
+        Parse.skip Parse.text ":"
       ]
 
 export { Protocol }

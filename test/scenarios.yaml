@@ -55,6 +55,16 @@ url:
           - key: baz
             value: buzz
 
+    - name: non HTTP URL
+      url: local:/components/foo/bar
+      expect:
+        origin:
+          protocol: local
+        path: 
+          - components
+          - foo
+          - bar
+
   failure:
   
     - name: missing origin or path
@@ -202,6 +212,19 @@ template:
                 type: query
                 modifier: "*"
                 variable: foo
+
+    - name: non HTTP scheme
+      template: local:/components/foo/{bar}
+      expect:
+        origin:
+          protocol: local
+        path:
+          - components
+          - foo
+          - expression:
+              type: path
+              variable: bar
+
   failure:
     - name: neither origin nor path
       template: "?{foo}"
@@ -445,6 +468,12 @@ encode/decode:
         Tannhäuser Gate. All those moments will be lost
         in time, like tears…in…rain. Time to die.
       media: ~
+
+  - name: non HTTP scheme
+    template: local:/components/foo/{bar}
+    url: local:/components/foo/baz
+    bindings:
+      bar: baz
 
 encode:
 

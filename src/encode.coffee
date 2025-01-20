@@ -85,11 +85,12 @@ encode = Fn.curry ( template, bindings ) ->
   traverse ( Parsers.template template ),
     expression: evaluate bindings
     protocol: Fn.pipe [
-      suffix "://"
+      suffix ":"
       append
     ]
     domain: Fn.pipe [
       It.join "."
+      prefix "//"
       append
     ]
     path: Fn.pipe [

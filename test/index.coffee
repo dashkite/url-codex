@@ -33,7 +33,11 @@ do ->
         test "success", do ->
           for { name, type, url, expect } in scenarios[ "url" ][ "success" ]
             test ( name ? url ), ->
-              assert.deepEqual expect, Parsers.template url
+              try
+                assert.deepEqual expect, Parsers.template url
+              catch error
+                console.warn Parsers.template url
+                throw error
 
         test "failure", do ->
           for { name, type, url, expect } in scenarios[ "url" ][ "failure" ]
@@ -46,7 +50,11 @@ do ->
         test "success", do ->
           for { name, type, template, expect } in scenarios[ "template" ][ "success" ]
             test ( name ? template ), ->
-              assert.deepEqual expect, Parsers.template template
+              try
+                assert.deepEqual expect, Parsers.template template
+              catch error
+                console.warn Parsers.template template
+                throw error
 
         test "failure", do ->
           for { name, type, template, expect } in scenarios[ "template" ][ "failure" ]
@@ -61,8 +69,19 @@ do ->
 
       for { name, template, url, bindings } in scenarios[ "encode/decode" ]
         test ( name ? template ), ->
-          assert.equal url, encode template, bindings
-          assert.deepEqual bindings, decode template, url
+
+          try
+            assert.equal url, encode template, bindings
+          catch error
+            console.warn "encode error"
+            console.warn encode template, bindings
+            throw error
+          try
+            assert.deepEqual bindings, decode template, url
+          catch error
+            console.warn "decode error"
+            console.warn decode template, url
+            throw error
 
     test "encode", [
 

@@ -53,6 +53,7 @@ visitor = ( bindings ) ->
     It.map evaluate handlers bindings, state
     ( patterns ) ->
       Parse.all [
+        Parse.skip Parse.text "//"
         Parse.pipe [
           Parse.join delimiter, patterns
           Parse.flatten

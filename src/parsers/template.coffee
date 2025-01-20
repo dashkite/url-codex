@@ -50,10 +50,13 @@ domain = Parse.pipe [
 ]
 
 origin = Parse.pipe [
-  Parse.all [ 
-    scheme
-    Parse.skip Parse.text "//"
-    domain 
+  Parse.any [
+    Parse.all [ 
+      scheme
+      Parse.skip Parse.text "//"
+      domain 
+    ]
+    Parse.all [ scheme ]
   ]
   Parse.merge
   Parse.tag "origin"
