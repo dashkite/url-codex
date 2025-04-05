@@ -10,7 +10,7 @@ import * as Parsers from "./parsers"
 # messages.prefix = "url-codex"
 
 failure = ( code, context ) ->
-  Text.interpolate failures[code], context
+  new Error Text.interpolate failures[code], context
 
 # TODO we really need to add this to Joy
 flatten = ( it ) ->
