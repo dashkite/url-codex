@@ -12,7 +12,6 @@ import * as Parsers from "./parsers"
 failure = ( code, context ) ->
   new Error Text.interpolate failures[code], context
 
-# TODO we really need to add this to Joy
 flatten = ( it ) ->
   result = []
   for x from it

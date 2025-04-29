@@ -84,9 +84,6 @@ visitor = ( bindings ) ->
           Parse.list delimiter, Parse.any patterns
           Parse.flatten
           Parse.merge
-          # TODO we need a better version of verify
-          #      where we can tailor the error message
-          #      based on which parameter is missing
           Parse.verify "required query parameters",
             ( value ) ->
               state.required.every (variable) -> value[ variable ]?
