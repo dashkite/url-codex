@@ -1,6 +1,6 @@
 {
   "name": "@dashkite/url-codex",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Simple JSON Query-based text interpolation for JavaScript",
   "exports": {
     ".": {
