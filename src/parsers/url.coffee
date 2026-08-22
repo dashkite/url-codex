@@ -28,9 +28,12 @@ origin = Parse.pipe [
 ]
 
 path = Parse.pipe [
-  Parse.all [
-    Parse.skip Parse.text "/"
-    Parse.optional Parse.list ( Parse.text "/" ), component
+  Parse.any [
+    Parse.all [
+      Parse.skip Parse.text "/"
+      Parse.optional Parse.list ( Parse.text "/" ), component
+    ]
+    Parse.list ( Parse.text "/" ), component
   ]
   Parse.flatten
   Parse.tag "path"

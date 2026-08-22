@@ -29,50 +29,58 @@ handlers = ( bindings, state ) ->
 
   literal: ( text ) ->
     state.optional = false
+    elements = [ Common.component ]
+    if ( ! ( state.first && ( ! state.absolute ) ) )
+      elements.unshift Parse.skip delimiter
+    state.first = false
     Parse.skip Parse.pipe [
-      Parse.all [
-        Parse.skip delimiter
-        Common.component
-      ]
+      Parse.all elements
       Parse.first
       Parse.test text, ( value ) -> value == text
     ]
 
   default: ( variable ) ->
     state.optional = false
+    elements = [ component variable ]
+    if ( ! ( state.first && ( ! state.absolute ) ) )
+      elements.unshift Parse.skip delimiter
+    state.first = false
     Parse.pipe [
-      Parse.all [
-        Parse.skip delimiter
-        component variable
-      ]
+      Parse.all elements
       Parse.first
     ]
     
 
   "?": ( variable ) ->
     bindings[ variable ] = null
-    Parse.optional Parse.all [
-      Parse.skip delimiter
-      component variable
-    ]
+    elements = [ component variable ]
+    if ( ! ( state.first && ( ! state.absolute ) ) )
+      elements.unshift Parse.skip delimiter
+    state.first = false
+    Parse.optional Parse.all elements
 
   "*": ( variable ) ->
     bindings[ variable ] = []
-    Parse.optional Parse.all [
-      Parse.skip delimiter
-      list variable
-    ]
+    elements = [ list variable ]
+    if ( ! ( state.first && ( ! state.absolute ) ) )
+      elements.unshift Parse.skip delimiter
+    state.first = false
+    Parse.optional Parse.all elements
 
   "+": ( variable ) ->
     state.optional = false
     bindings[ variable ] = []
-    Parse.all [
-      Parse.skip delimiter
-      list variable
-    ]
+    elements = [ list variable ]
+    if ( ! ( state.first && ( ! state.absolute ) ) )
+      elements.unshift Parse.skip delimiter
+    state.first = false
+    Parse.all elements
 
-visitor = ( bindings ) ->
-  state = optional: true
+visitor = ( bindings, absolute ) ->
+  state =
+    optional: true
+    first: true
+    absolute: absolute
   Fn.pipe [
     It.map evaluate handlers bindings, state
     ( patterns ) ->

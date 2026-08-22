@@ -25,6 +25,11 @@ decode = Fn.curry ( template, url ) ->
   # building up our list of parsers as we go
   tree = Parsers.template template
 
+  protocol = tree.origin?.protocol?
+  domain = tree.origin?.domain?
+  slash = ( /^[A-Za-z][A-Za-z0-9\+\-\.]*:\//.test template )
+  absolute = ( ! protocol ) || domain || slash
+
   traverse tree,
     protocol: Fn.pipe [
       Protocol.visitor bindings
@@ -35,7 +40,7 @@ decode = Fn.curry ( template, url ) ->
       push patterns
     ]
     path:  Fn.pipe [
-      Path.visitor bindings
+      Path.visitor bindings, absolute
       push patterns
     ]
     query: Fn.pipe [

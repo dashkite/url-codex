@@ -79,17 +79,21 @@ prefix = Fn.curry ( p, value ) ->
 suffix = Fn.curry ( s, value ) ->
   if value? && value != "" then value + s else value
 
-prefixPath = Fn.curry ( origin, path ) ->
+prefixPath = Fn.curry ( options, path ) ->
+  { absolute, origin } = options
   if ( path == "" )
     if ( ! origin )
       "/"
     else
       ""
   else
-    "/" + path
+    if ( absolute )
+      "/" + path
+    else
+      path
 
 allowed = new Set [
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~!*'()"...
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~!$&'()*+,;=:@"...
 ]
 
 encoder = new TextEncoder
@@ -113,6 +117,11 @@ encode = Fn.curry ( template, bindings ) ->
   result = ""
   append = ( value ) -> result += value
   tree = ( Parsers.template template )
+  protocol = tree.origin?.protocol?
+  domain = tree.origin?.domain?
+  origin = ( protocol || domain )
+  slash = ( /^[A-Za-z][A-Za-z0-9\+\-\.]*:\//.test template )
+  absolute = ( ! protocol ) || domain || slash
   traverse tree,
     expression: evaluate bindings
     protocol: Fn.pipe [
@@ -128,7 +137,7 @@ encode = Fn.curry ( template, bindings ) ->
       It.select ( x ) -> ( x? )
       It.map encodePathSegment
       It.join "/"
-      prefixPath ( tree.origin?.protocol? || tree.origin?.domain? )
+      prefixPath { absolute, origin }
       append
     ]
     query: Fn.pipe [

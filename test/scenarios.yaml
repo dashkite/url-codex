@@ -237,6 +237,13 @@ encode/decode:
     url: /
     bindings: {}
 
+  - name: rootless path with colons (URN)
+    template: drn:s3:website:origin/{namespace}/{tld}
+    url: drn:s3:website:origin/modules/dashkite
+    bindings:
+      namespace: modules
+      tld: dashkite
+
   - name: simple path
     template: /{foo}
     url: /abc
@@ -295,7 +302,7 @@ encode/decode:
 
   - name: path with special characters in literal
     template: /home/{login}/edit+metadata
-    url: /home/~dyoder/edit%2Bmetadata
+    url: /home/~dyoder/edit+metadata
     bindings:
       login: ~dyoder
 
@@ -307,9 +314,21 @@ encode/decode:
 
   - name: path with URL encoding
     template: /home/{email}/edit
-    url: /home/danielyoder%40gmail.com/edit
+    url: /home/danielyoder@gmail.com/edit
     bindings:
       email: danielyoder@gmail.com
+
+  - name: path with disallowed characters
+    template: /home/{folder}/edit
+    url: /home/my%20documents%23archive/edit
+    bindings:
+      folder: "my documents#archive"
+
+  - name: path with UTF-8 character encoding
+    template: /store/{item}/details
+    url: /store/caf%C3%A9/details
+    bindings:
+      item: café
 
   - name: simple query
     template: /foo?{bar}
@@ -403,7 +422,7 @@ encode/decode:
 
   - name: origin and path with URL encoding
     template: https://acme.org/home/{email}/edit
-    url: https://acme.org/home/danielyoder%40gmail.com/edit
+    url: https://acme.org/home/danielyoder@gmail.com/edit
     bindings:
       email: danielyoder@gmail.com
 

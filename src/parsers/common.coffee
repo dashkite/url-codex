@@ -3,7 +3,7 @@ import * as Text from "@dashkite/joy/text"
 
 protocol = Parse.pipe [
   # Parse.text "https"
-  Parse.re /^[^:]+/
+  Parse.re /^[A-Za-z][A-Za-z0-9\+\-\.]*/
   Parse.tag "protocol"
 ]
 

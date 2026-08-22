@@ -63,9 +63,16 @@ origin = Parse.pipe [
 ]
 
 path = Parse.pipe [
-  Parse.all [
-    Parse.skip Parse.text "/"
-    Parse.optional Parse.list ( Parse.text "/" ), 
+  Parse.any [
+    Parse.all [
+      Parse.skip Parse.text "/"
+      Parse.optional Parse.list ( Parse.text "/" ), 
+        Parse.any [
+          expression "path"
+          component
+        ]
+    ]
+    Parse.list ( Parse.text "/" ), 
       Parse.any [
         expression "path"
         component
